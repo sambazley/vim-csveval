@@ -1,0 +1,101 @@
+*csveval.txt*  Commands to calculate values for CSV files
+
+Author: Sam Bazley
+Repo: https://github.com/sambazley/vim-csveval
+
+==============================================================================
+CONTENTS				*:CsvEval* *csveval* *csveval-contents*
+
+ Introduction				|csveval-introduction|
+ Configuration				|csveval-configuration|
+ Types					|csveval-types|
+ Functions				|csveval-functions|
+ Examples				|csveval-examples|
+
+==============================================================================
+INTRODUCTION						*csveval-introduction*
+
+This plugin implements :CsvEval which parses a string that consists of a
+combination of functions and cells to perform simple mathematical operations
+that may be useful for processing CSV files.
+
+==============================================================================
+CONFIGURATION						*csveval-configuration*
+
+g:csveval_detectdelim					*g:csveval_detectdelim*
+	By default, the plugin will attempt to guess the correct delimiter by
+	searching the first ten lines of the file for numbers separated by any
+	of the following characters: [',', ' ', '\t', ';']. This behaviour can
+	be disabled by setting |g:csveval_detectdelim| to 0, in which case, a
+	"," will be used as the delimiter.
+	Default value is 1.
+
+g:csveval_forcedelim					*g:csveval_forcedelim*
+	In case a specific delimiter should be used that the plugin fails to
+	detect, |g:csveval_forcedelim| can be set to the desired delimiter.
+	Setting this variable overrides and disables |g:csveval_detectdelim|.
+	Default value is 0.
+
+==============================================================================
+TYPES							*csveval-types*
+
+A cell is described by one or a series of letters, followed by one or a series
+of numbers, where the letters represent the column, and the numbers represent
+the row. The top left cell is A1. After column Z, a second letter is used (X,
+Y, Z, AA, AB, AC, etc). In place of the cell's number, a "#" can be used to
+represent the current line.
+
+Some functions take a list as an argument. A list is a "," separated string of
+cells or functions. A list of cells can also be represented as two cells,
+opposite sides of a rectangle, separated by a ":" (E.g. B2:D5 is equivalent to
+B2, B3, B4, B5, C2, C3, C4, C5, D2, D3, D4, D5).
+
+Functions can take any type as arguments, unless the function only accepts one
+parameter and a list is provided.
+
+==============================================================================
+FUNCTIONS						*csveval-functions*
+
+round(x)						*csveval-round*
+	Returns |x| to nearest integer.
+
+floor(x)						*csveval-floor*
+	Returns the floor of |x|.
+
+ceil(x)							*csveval-ceil*
+	Returns the ceiling of |x|.
+
+divide(a, b)						*csveval-divide*
+	Returns |a| / |b|.
+
+multiply(a, b)						*csveval-multiply*
+	Returns |a| * |b|.
+
+sum(list...)						*csveval-multiply*
+	Returns the sum of all cells in |list|.
+
+subtract(a, b)						*csveval-subtract*
+	Returns |a| - |b|.
+
+mean(list...)						*csveval-mean*
+	Returns the mean of all cells in |list|.
+
+==============================================================================
+EXAMPLES						*csveval-examples*
+
+:CsvEval sum(A1, B1)
+	Inserts the sum of A1 and B1 at the end of the current line.
+
+:CsvEval mean(A1:A3, D4)
+	Inserts the mean of A1, A2, A3, D4 at the end of the current line.
+
+:%CsvEval multiply(divide(G#, C#) 5000)
+	For each line in the buffer, divide the number in column G by the
+	number in column C, multiply by 5000, and append the result to the
+	respective line.
+
+:'<,'>g/^/exec ":CsvEval sum(A#, B" . (line(".") - 1) . ")"
+	Calculate the cumulative total over a range. (First line must be
+	complete)
+
+vim:tw=78:ts=8:noet:ft=help:norl:
